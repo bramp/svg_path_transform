@@ -4,12 +4,12 @@ name: Publish to pub.dev
 on:
   push:
     tags:
-    - 'svg_path-v[0-9]+.[0-9]+.[0-9]+*'
+    - 'svg_path_transform-v[0-9]+.[0-9]+.[0-9]+*'
 
 # Publish using the reusable workflow from dart-lang.
 jobs:
   publish:
-    if: startsWith(github.ref_name, 'svg_path-v')
+    if: startsWith(github.ref_name, 'svg_path_transform-v')
     permissions:
       id-token: write # Required for authentication using OIDC
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
