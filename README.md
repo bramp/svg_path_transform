@@ -2,7 +2,7 @@ Pure dart library for parsing and manipulating SVG paths.
 
 [![Pub package](https://img.shields.io/pub/v/svg_path_transform.svg)](https://pub.dev/packages/svg_path_transform)
 [![Pub publisher](https://img.shields.io/pub/publisher/svg_path_transform.svg)](https://pub.dev/publishers/bramp.net/packages)
-[![Dart Analysis](https://github.com/bramp/svg_path/actions/workflows/dart.yml/badge.svg)](https://github.com/bramp/svg_path/actions/workflows/dart.yml)
+[![Dart Analysis](https://github.com/bramp/svg_path_transform/actions/workflows/test.yml/badge.svg)](https://github.com/bramp/svg_path_transform/actions/workflows/test.yml)
 
 ## Features
 
@@ -50,6 +50,25 @@ void main() {
   print(p3.toString());
   print(p4.toString());
 }
+```
+
+## Development
+
+To run the tests:
+
+```bash
+make all
+```
+
+To publish:
+
+```bash
+# Bump the version in pubspec.yaml
+# Update the CHANGELOG.md
+
+git commit -m "chore: bump version to 1.2.0"
+git tag svg_path_transform-v1.2.0
+git push origin main --tags
 ```
 
 ## Limitations
