@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
+import 'package:svg_path_transform/src/math.dart';
 import 'package:svg_path_transform/src/operation.dart';
-
-import 'math.dart';
 
 String _formatNumber(double n) {
   // Two decimal places, and no trailing zeros.
@@ -19,15 +18,19 @@ bool _closeTo(double a, double b, {double epsilon = 1e-10}) =>
 /// That is limited to what dart:ui supports, and all coordinates are absolute.
 @immutable
 sealed class SvgCommand implements Operations<SvgCommand> {
+  /// Base constructor for [SvgCommand].
   const SvgCommand();
 
   /// Returns the coordinates of the end of this command.
   /// e.g LineTo(10, 20).end = (10, 20)
-  // TODO Maybe remove this, as some commands don't have an end point (e.g Close).
+  // TODO(bramp): Maybe remove this, as some commands don't have an end point
+  // (e.g Close).
   (double x, double y) get end;
 }
 
+/// A command that closes the current subpath.
 class SvgClose extends SvgCommand {
+  /// Creates a new [SvgClose] command.
   const SvgClose();
 
   @override
@@ -49,7 +52,7 @@ class SvgClose extends SvgCommand {
 
   @override
   (double, double) get end =>
-      throw StateError('SvgClose end point, is the subpath\'s initial point.');
+      throw StateError("SvgClose end point, is the subpath's initial point.");
 
   @override
   bool operator ==(Object other) => other is SvgClose;
@@ -58,10 +61,15 @@ class SvgClose extends SvgCommand {
   int get hashCode => runtimeType.hashCode;
 }
 
+/// A command that moves the current point to (x, y).
 class SvgMoveTo extends SvgCommand {
+  /// Creates a new [SvgMoveTo] command.
   const SvgMoveTo(this.x, this.y);
 
+  /// The target x coordinate.
   final double x;
+
+  /// The target y coordinate.
   final double y;
 
   @override
@@ -95,8 +103,8 @@ class SvgMoveTo extends SvgCommand {
   bool operator ==(Object other) =>
       // The _closeTo() check is to account for small floating point errors
       // but by using it in operator== we techinincally violate the hashCode
-      // contract. As two values may be close to each other (and thus equal), but
-      // generate different hashcodes.
+      // contract. As two values may be close to each other (and thus equal),
+      // but generate different hashcodes.
       // This is a bug I'm willing to accept (for now).
       other is SvgMoveTo && _closeTo(other.x, x) && _closeTo(other.y, y);
 
@@ -104,10 +112,15 @@ class SvgMoveTo extends SvgCommand {
   int get hashCode => Object.hash(x, y);
 }
 
+/// A command that draws a line from the current point to (x, y).
 class SvgLineTo extends SvgCommand {
+  /// Creates a new [SvgLineTo] command.
   const SvgLineTo(this.x, this.y);
 
+  /// The target x coordinate.
   final double x;
+
+  /// The target y coordinate.
   final double y;
 
   @override
@@ -145,18 +158,28 @@ class SvgLineTo extends SvgCommand {
   int get hashCode => Object.hash(x, y);
 }
 
-// Cubic bezier segment that curves from the current point to the given
-// point (x3,y3), using the control points (x1,y1) and (x2,y2).
+/// A command that draws a cubic bezier segment from the current point to
+/// (x3, y3), using the control points (x1, y1) and (x2, y2).
 class SvgCubicTo extends SvgCommand {
+  /// Creates a new [SvgCubicTo] command.
   const SvgCubicTo(this.x1, this.y1, this.x2, this.y2, this.x3, this.y3);
 
+  /// The first control point's x coordinate.
   final double x1;
+
+  /// The first control point's y coordinate.
   final double y1;
 
+  /// The second control point's x coordinate.
   final double x2;
+
+  /// The second control point's y coordinate.
   final double y2;
 
+  /// The target x coordinate.
   final double x3;
+
+  /// The target y coordinate.
   final double y3;
 
   @override
@@ -167,8 +190,11 @@ class SvgCubicTo extends SvgCommand {
       );
 
   @override
-  SvgCubicTo rotate(double angle,
-      [double centerX = 0.0, double centerY = 0.0]) {
+  SvgCubicTo rotate(
+    double angle, [
+    double centerX = 0.0,
+    double centerY = 0.0,
+  ]) {
     final (x1, y1) = rotatePoint(this.x1, this.y1, angle, centerX, centerY);
     final (x2, y2) = rotatePoint(this.x2, this.y2, angle, centerX, centerY);
     final (x3, y3) = rotatePoint(this.x3, this.y3, angle, centerX, centerY);

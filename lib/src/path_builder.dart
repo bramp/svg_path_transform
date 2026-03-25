@@ -1,11 +1,12 @@
 import 'package:meta/meta.dart';
 import 'package:path_parsing/path_parsing.dart';
 import 'package:svg_path_transform/src/path.dart';
+import 'package:svg_path_transform/src/sub_path.dart';
+import 'package:svg_path_transform/src/svg_command.dart';
 
-import 'sub_path.dart';
-import 'svg_command.dart';
-
+/// A builder for creating [Path] objects.
 class PathBuilder implements PathProxy {
+  /// The list of [SvgCommand]s that make up the path.
   final List<SvgCommand> segments = [];
 
   @override
@@ -17,7 +18,13 @@ class PathBuilder implements PathProxy {
   // point (x3,y3), using the control points (x1,y1) and (x2,y2).
   @override
   void cubicTo(
-      double x1, double y1, double x2, double y2, double x3, double y3) {
+    double x1,
+    double y1,
+    double x2,
+    double y2,
+    double x3,
+    double y3,
+  ) {
     segments.add(SvgCubicTo(x1, y1, x2, y2, x3, y3));
   }
 
@@ -31,12 +38,13 @@ class PathBuilder implements PathProxy {
     segments.add(SvgMoveTo(x, y));
   }
 
+  /// Returns the finished [Path] object.
   @useResult
   Path finished() {
     final paths = <SubPath>[];
-    int last = 0;
+    var last = 0;
 
-    for (int i = 0; i < segments.length; i++) {
+    for (var i = 0; i < segments.length; i++) {
       if (segments[i] is SvgClose) {
         paths.add(SubPath(segments.sublist(last, i + 1)));
         last = i + 1;

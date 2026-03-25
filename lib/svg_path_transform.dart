@@ -1,5 +1,4 @@
 /// Pure dart library for parsing and manipulating SVG paths.
-///
 library;
 
 export 'src/operation.dart';

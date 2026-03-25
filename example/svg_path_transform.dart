@@ -1,5 +1,5 @@
+// Examples are allowed to use print.
 // ignore_for_file: avoid_print
-
 import 'dart:math';
 
 import 'package:svg_path_transform/svg_path_transform.dart';
@@ -21,8 +21,8 @@ void main() {
   final p3 = path.mirror(Axis.x);
 
   // Print out the paths as SVG path strings.
-  print(p0.toString());
-  print(p1.toString());
-  print(p2.toString());
-  print(p3.toString());
+  print(p0);
+  print(p1);
+  print(p2);
+  print(p3);
 }

@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import 'operation.dart';
-import 'svg_command.dart';
+import 'package:svg_path_transform/src/operation.dart';
+import 'package:svg_path_transform/src/svg_command.dart';
 
 /// A sequence of SVG commands making up a subpath.
 @immutable
@@ -21,13 +21,19 @@ class SubPath implements Operations<SubPath> {
 
       if (segments.whereType<SvgClose>().length > 1) {
         throw UnimplementedError(
-            'Only a single ClosePath is allowed per SubPath');
+          'Only a single ClosePath is allowed per SubPath',
+        );
       }
     }
   }
+
+  /// The list of [SvgCommand]s that make up the subpath.
   final List<SvgCommand> segments;
 
+  /// Returns true if the subpath is closed.
   bool get isClosed => segments.last is SvgClose;
+
+  /// Returns the number of segments in the subpath.
   int get length => segments.length;
 
   /// Returns a new Path translated by x and y.
@@ -40,8 +46,9 @@ class SubPath implements Operations<SubPath> {
   SubPath rotate(double angle, [double centerX = 0.0, double centerY = 0.0]) =>
       SubPath(segments.map((p) => p.rotate(angle, centerX, centerY)).toList());
 
-  /// Mirrors this over vertical or horizontal [axis] that goes though [centerX],[centerY].
-  // TODO Support mirroring over a arbitrary line.
+  /// Mirrors this over vertical or horizontal [axis] that goes though
+  /// [centerX],[centerY].
+  // TODO(bramp): Support mirroring over a arbitrary line.
   @override
   SubPath mirror(Axis axis, [double centerX = 0.0, double centerY = 0.0]) =>
       SubPath(segments.map((p) => p.mirror(axis, centerX, centerY)).toList());
@@ -57,12 +64,12 @@ class SubPath implements Operations<SubPath> {
       return this;
     }
 
-    List<SvgCommand> reversed = [];
+    final reversed = <SvgCommand>[];
 
     // In reverse order, find where each previous point ends
     // and create the same command but going to that last point.
-    for (int i = segments.length - 1; i > 0; i--) {
-      final SvgCommand segment = segments[i];
+    for (var i = segments.length - 1; i > 0; i--) {
+      final segment = segments[i];
 
       if (segment is SvgClose) {
         // Skip this.
@@ -78,21 +85,22 @@ class SubPath implements Operations<SubPath> {
       switch (segment) {
         case SvgMoveTo():
           reversed.add(SvgMoveTo(prevEnd.$1, prevEnd.$2));
-          break;
         case SvgLineTo():
           reversed.add(SvgLineTo(prevEnd.$1, prevEnd.$2));
-          break;
         case SvgCubicTo():
-          // TODO Do I need to change control points?
-          reversed.add(SvgCubicTo(
-            segment.x2, segment.y2, //
-            segment.x1, segment.y1, //
-            prevEnd.$1, prevEnd.$2, //
-          ));
-          break;
+          // TODO(bramp): Do I need to change control points?
+          reversed.add(
+            SvgCubicTo(
+              segment.x2, segment.y2, //
+              segment.x1, segment.y1, //
+              prevEnd.$1, prevEnd.$2, //
+            ),
+          );
         case SvgClose():
           throw UnimplementedError(
-              'Should not be possible to have a close command in the middle of a path.');
+            'Should not be possible to have a close command in the middle of '
+            'a path.',
+          );
       }
     }
 
@@ -100,18 +108,21 @@ class SubPath implements Operations<SubPath> {
       reversed.add(const SvgClose());
     }
 
-    assert(segments.length == reversed.length,
-        'Expected reverse path to have the same number of segments.');
+    assert(
+      segments.length == reversed.length,
+      'Expected reverse path to have the same number of segments.',
+    );
 
     return SubPath(reversed);
   }
 
   @override
   bool operator ==(Object other) =>
-      other is SubPath && const ListEquality().equals(segments, other.segments);
+      other is SubPath &&
+      const ListEquality<SvgCommand>().equals(segments, other.segments);
 
   @override
-  int get hashCode => const ListEquality().hash(segments);
+  int get hashCode => const ListEquality<SvgCommand>().hash(segments);
 
   /// Returns the SubPath as a valid SVG path string.
   @override

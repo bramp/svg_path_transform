@@ -8,6 +8,7 @@ import 'package:svg_path_transform/src/sub_path.dart';
 /// A SVG Path object.
 @immutable
 class Path implements Operations<Path> {
+  /// Creates a new path from a list of [subPaths].
   Path(List<SubPath> subPaths) : subPaths = List.unmodifiable(subPaths);
 
   /// Creates a empty path.
@@ -16,12 +17,12 @@ class Path implements Operations<Path> {
   /// Create a new path from a string.
   /// e.g `Path.fromString('M0,0 L1,1 Z')`
   factory Path.fromString(String path) {
-    final SvgPathStringSource parser = SvgPathStringSource(path);
-    final SvgPathNormalizer normalizer = SvgPathNormalizer();
+    final parser = SvgPathStringSource(path);
+    final normalizer = SvgPathNormalizer();
 
     final builder = PathBuilder();
 
-    for (PathSegmentData seg in parser.parseSegments()) {
+    for (final seg in parser.parseSegments()) {
       normalizer.emitSegment(seg, builder);
     }
 
@@ -51,8 +52,11 @@ class Path implements Operations<Path> {
         'a$rx,$ry 0 1,0 -${rx * 2},0 '
         'Z',
       );
+
+  /// The list of [SubPath]s that make up this path.
   final List<SubPath> subPaths;
 
+  /// Returns the number of segments in all subpaths.
   int get length => subPaths.map((p) => p.length).sum;
 
   @override
@@ -71,10 +75,11 @@ class Path implements Operations<Path> {
   Path scale(num scaleX, [num? scaleY]) =>
       Path(subPaths.map((p) => p.scale(scaleX, scaleY ?? scaleX)).toList());
 
+  /// Returns a new [Path] with all subpaths reversed.
   Path reverse() => Path(subPaths.reversed.map((p) => p.reverse()).toList());
 
   /// Joins two paths together. e.g
-  /// ```
+  /// ```dart
   /// final a = Path.fromString('M0,0 L1,1 Z')
   /// final b = Path.fromString('M2,2 L3,3 Z');
   /// final c = a.join(b);
@@ -88,8 +93,9 @@ class Path implements Operations<Path> {
 
   @override
   bool operator ==(Object other) =>
-      other is Path && const ListEquality().equals(subPaths, other.subPaths);
+      other is Path &&
+      const ListEquality<SubPath>().equals(subPaths, other.subPaths);
 
   @override
-  int get hashCode => const ListEquality().hash(subPaths);
+  int get hashCode => const ListEquality<SubPath>().hash(subPaths);
 }
