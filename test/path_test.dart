@@ -450,7 +450,6 @@ void main() {
 }
 
 /// Helper method to write tests to an HTML file for visual inspection.
-// ignore: unreachable_from_main
 void writeTestsToHTML(List<(String, String)> tests, [String? transform]) {
   final f = File('tests.html').openWrite();
   f.write('''
